@@ -8,7 +8,7 @@ searchList = sku.get()
 for search in searchList:
     hrefList = href.get(search)
     for hrefLink in hrefList:
-        try: price.get(hrefLink)
+        try: price3.get(hrefLink)
         except:
-            try: price3.get(hrefLink)
+            try: price.get(hrefLink)
             except: pass

@@ -3,11 +3,22 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import re
 import time
-import sheet
+import sheet 
+
+batch_data = []
 
 def quit_driver(driver):
     print("Timeout reached. Quitting driver.")
     driver.quit()
+
+def add_columns_in_batch(data):
+    global batch_data
+    batch_data.append(data)
+
+
+    if len(batch_data) >= 10:
+        sheet.add_column(batch_data) 
+        batch_data = [] 
 
 def get(href):
     driver = webdriver.Chrome()
@@ -37,7 +48,6 @@ def get(href):
             selector[1].click()
 
             wrcplus_list = driver.find_elements(By.CSS_SELECTOR, "li.bd_1y1pd")
-            print(wrcplus_list)
             for wrcp in list(range(len(wrcplus_list))):
                 print(f"wrcp: {wrcp}")
                 time.sleep(1)
@@ -58,17 +68,19 @@ def get(href):
                         gamga = match.group(0).replace('(', '').replace(')', '').replace('원', '').replace(',', '')
                         print(int(gamga))
                         print(int(price))
-                        sheet.add_column([href, name, int(gamga) + int(price)])
+                        add_columns_in_batch([href, name, int(gamga) + int(price)])
                     except:
-                        sheet.add_column([href, name, int(price)])
+                        add_columns_in_batch([href, name, int(price)])
                 time.sleep(0.5)
                 selector[1].click()
                 time.sleep(0.5)
-                
+
             selector[0].click()
 
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
+        if batch_data:
+            sheet.add_column(batch_data)
         timer.cancel()
         driver.quit()
